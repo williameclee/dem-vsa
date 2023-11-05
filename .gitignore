@@ -1,0 +1,7 @@
+Literatures/
+
+# Ignore log files
+*.log
+
+# Ignore macOS system files
+.DS_Store
