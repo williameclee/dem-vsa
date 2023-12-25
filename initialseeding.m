@@ -1,29 +1,23 @@
-function seeds = initialseeding(mapsize, k)
-    % Preallocation
-    seeds = zeros([k, 3]);
+function [seeds, k] = initialseeding(mapsize, k)
+    % Distribute (no less than) k seeds uniformly over the map
 
-    k_1d = ceil(sqrt(k));
-    scale_factor_x = mapsize(2) / k_1d;
-    scale_factor_y = mapsize(1) / k_1d;
+    k_1d = ceil(sqrt(k)); % number of seeds per dimension
+    k = k_1d ^ 2; % updated number of seeds
 
-    k_max = k_1d ^ 2;
-    k_excess = k_max - k;
+    grid_spacing_x = mapsize(2) / k_1d;
+    grid_spacing_y = mapsize(1) / k_1d;
 
     [I, J] = meshgrid(1:k_1d, 1:k_1d);
-    I = I(:) - 0.5;
-    J = J(:) - 0.5;
+    I = round((I(:) - 0.5) * grid_spacing_x);
+    J = round((J(:) - 0.5) * grid_spacing_y);
 
-    if k_excess > 0
-        k_skip = floor(k_max / k_excess);
-        idx = true(k_max, 1);
-        idx(k_skip:k_skip:end) = false;
-        I = I(idx);
-        J = J(idx);
-    end
+    I(I <= 1) = 1;
+    I(I >= mapsize(2)) = mapsize(2);
+    J(J <= 1) = 1;
+    J(J >= mapsize(1)) = mapsize(1);
 
-    seeds(:, 2) = round(J * scale_factor_y);
-    seeds(:, 2) = min(max(seeds(:, 2), 1), mapsize(1));
-    seeds(:, 3) = round(I * scale_factor_x);
-    seeds(:, 3) = min(max(seeds(:, 3), 1), mapsize(2));
+    seeds = zeros([k, 3]);
+    seeds(:, 2) = J;
+    seeds(:, 3) = I;
     seeds(:, 1) = sub2ind(mapsize, seeds(:, 2), seeds(:, 3));
 end
